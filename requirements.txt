@@ -1,3 +1,2 @@
 httpx
 loguru
-python-telegram-bot
