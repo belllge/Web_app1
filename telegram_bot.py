@@ -1,52 +1,40 @@
-import os
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-from keygen import generate_keys  # Import the function from keygen.py
+from telegram import Bot, Update
+from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
+from telegram.ext import MessageHandler, Filters
 
-# Read bot token from environment variable
-BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+# Replace 'YOUR_TELEGRAM_BOT_TOKEN' with your actual token
+TOKEN = '7145104329:AAHBI7cjN4UJ7ZwQngPiYyZY_6pFs4B6WLY'
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        'Welcome to the Hamster Kombat Key Generator Bot! '
-        'Use /getcode <game_number> <key_count> to generate a key. '
-        'Example: if you want two keys for "riding extreme 3d", use /getcode 1 2'
+def start(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text(
+        'Welcome to the bot! To choose a game number, type /game followed by the number.\n'
+        'Example: /game 1\n\n'
+        'This bot is created for you by Akako.'
     )
 
-async def get_code(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if len(context.args) != 2:
-        await update.message.reply_text(
-            'Usage: /getcode <game_number> <key_count>. '
-            'Example: /getcode 1 2'
-        )
-        return
+def game(update: Update, context: CallbackContext) -> None:
+    if context.args:
+        number = context.args[0]
+        update.message.reply_text(f'You chose game number {number}.')
+    else:
+        update.message.reply_text('Please provide a game number after the command.')
 
-    try:
-        game_number = int(context.args[0])
-        key_count = int(context.args[1])
-    except ValueError:
-        await update.message.reply_text(
-            'Invalid arguments. Please provide numeric values for <game_number> and <key_count>.'
-        )
-        return
+def main() -> None:
+    # Create Updater object and pass it your bot's token.
+    updater = Updater(TOKEN)
 
-    try:
-        keys, game_name = await generate_keys(game_number, key_count)
-        if not keys:
-            await update.message.reply_text(f'No keys generated for {game_name}.')
-        else:
-            response = '\n'.join(keys)
-            await update.message.reply_text(f'Generated keys for {game_name}:\n{response}')
-    except Exception as e:
-        await update.message.reply_text(f'An error occurred: {str(e)}')
+    # Get the dispatcher to register handlers
+    dispatcher = updater.dispatcher
+
+    # Register command handlers
+    dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('game', game))
+
+    # Start the Bot
+    updater.start_polling()
+
+    # Run the bot until you send a signal to stop
+    updater.idle()
 
 if __name__ == '__main__':
-    application = ApplicationBuilder().token(BOT_TOKEN).build()
-
-    start_handler = CommandHandler('start', start)
-    get_code_handler = CommandHandler('getcode', get_code)
-
-    application.add_handler(start_handler)
-    application.add_handler(get_code_handler)
-
-    application.run_polling()
+    main()
