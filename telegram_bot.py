@@ -3,7 +3,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQuery
 from telegram.ext import MessageHandler, Filters
 
 # Replace 'YOUR_TELEGRAM_BOT_TOKEN' with your actual token
-TOKEN = '7145104329:AAHBI7cjN4UJ7ZwQngPiYyZY_6pFs4B6WLY'
+TOKEN = ''
 
 def start(update: Update, context: CallbackContext) -> None:
     update.message.reply_text(
